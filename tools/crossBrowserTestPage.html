@@ -1,0 +1,222 @@
+<html>
+<head><title>Test Page for js-sequence-diagram</title>
+
+<!-- current versions of the libraries from cdnjs -->
+<!-- http://cdnjs.com/libraries/ -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sequence-diagrams/1.0.6/sequence-diagram-min.js"></script>
+
+
+<!-- versions of the libraries that exhibit cross brwowser issues on the demo page
+	https://bramp.github.io/js-sequence-diagrams/
+-->
+<!--
+<script src="https://bramp.github.io/js-sequence-diagrams/js/underscore-min.js"></script>
+<script src="https://bramp.github.io/js-sequence-diagrams/js/raphael-min.js"></script>
+<script src="https://bramp.github.io/js-sequence-diagrams/js/sequence-diagram-min.js"></script>
+-->
+
+</head>
+<body>
+
+<div style="display:none">
+
+<textarea class="exampleSource">
+Title: Issue: some chars do not render in handwriting mode in actor
+ΩμΣΠ⋲Δ∕·ˉŁłŠšŽž−->b:
+# May be a char encoding issue - see source
+</textarea>
+
+<textarea class="exampleSource">
+Title: Issue: char backslash "\" is represented a "/" in hand drawn\n actor name but backslash "\" in simple
+\->A:
+</textarea>
+
+<textarea class="exampleSource">
+Title: Issue: the char "¦" is not represented in the hand drawn\n diagram actor name, but it is in simple 
+¦->A:
+# May be a char encoding issue - see source
+</textarea>
+
+<textarea class="exampleSource">
+Title: Issue: duplicate ActorA for participant without alias in demo app
+Participant ActorA
+ActorA->ActorB:
+# this fails with  https://bramp.github.io/js-sequence-diagrams/  on chrome (windows)
+# but works with url on firefox
+# and works in Chrome on Mac
+# works in test app in chrome
+</textarea>
+
+<textarea class="exampleSource">
+Title: Issue: space before actor names are trimmed\nbut spaces after are significant\nleading to duplicates if not careful
+A->B : here
+B ->A : back atcha
+</textarea>
+
+<textarea class="exampleSource">
+Title: Example Aliased participants do not create duplicate actors
+Participant ActorA as A
+A->ActorB:
+</textarea>
+<textarea class="exampleSource">
+Title: Issue: can not mix alias and name in same diagram
+Participant ActorA as A
+A->ActorB:
+ActorA->ActorB:
+</textarea>
+<textarea class="exampleSource">
+Title: Issue: Over box outline not drawn in simple theme
+Participant Actor A as A
+Participant Actor C as C
+Participant Actor B as B
+Note over B,A:over B,A
+</textarea>
+<textarea class="exampleSource">
+Title: Issue: Over box outline drawn short in hand drawn mode
+Participant Actor A as A
+Participant Actor C as C
+Participant Actor B as B
+Note over B,A:over A,B
+</textarea>
+<textarea class="exampleSource">
+Title: Example: Over box outline drawn well
+Participant Actor A as A
+Participant Actor C as C
+Participant Actor B as B
+Note over A,B:over A,B
+</textarea>
+
+<textarea class="exampleSource">
+C-B:C-B
+Note over A,C:over A,C
+Participant Actor A as A
+Participant Actor C as C
+Participant Actor B as B
+Title: Issue: participants have to be listed \nprior to any note or actor relationships\nor the names are not displayed
+</textarea>
+
+<textarea class="exampleSource">
+Participant Actor A as A
+Participant Actor C as C
+Participant Actor B as B
+C-B:C-B
+Note over A,C:over A,C
+Title: Example: participants actor names are used\n when listed at top of text
+</textarea>
+
+
+<textarea class="exampleSource">
+Title: This is a simple diagram with all grammar paths
+
+#Participants
+
+Participant Actor A as A
+Participant Actor B as B
+Participant Actor C as C
+
+# Issue with `Participant actor` path in demo app on chrome
+Participant Actor D
+Actor D->Actor D:
+
+# Actor message paths
+A->B: A->B
+A-->B: A-->B
+B->>C: B->>C
+B-->>C: B-->>C
+C-B: C-B
+C--B: C--B
+B-A: # B-A no message
+
+# Some recursive loops
+A-A:A-A
+B--B:B--B
+C->C:C->C
+C-->>C:C-->>C
+
+# Notes
+Note left of A:#empty note
+Note left of B: left of B
+Note right of A: right of A
+Note over C: over C
+Note over A,B:over A,B
+</textarea>
+
+
+</div>
+
+<div id="template" class="template">
+	<hr/>
+	<div class="source">
+		<pre>
+		</pre>
+		<textarea style="display:none">
+
+		</textarea>
+	</div>
+	<div class="diagrams">
+		<table>
+			<tr>
+				<td id="" class="simple">Simple Diagram will be placed here</td>
+				<td id="" class="hand">Hand Diagram will be placed here</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div id="examples">
+</div>
+
+<script> 
+
+// create the examples
+var exampleCount = 0;
+
+var template = document.getElementById("template");
+
+var exampleSources = document.querySelectorAll("textarea.exampleSource");
+
+for (var sourceindex = 0; sourceindex < exampleSources.length; sourceindex++) {
+	var newExample = template.cloneNode(true);
+
+	newExample.setAttribute('id', "example"+(++exampleCount));
+	newExample.setAttribute('class', "example");
+	newTextArea = newExample.querySelectorAll("div.source textarea")[0];
+	newTextArea.value = exampleSources[sourceindex].value;
+	newPre = newExample.querySelectorAll("div.source pre")[0];
+	newPre.innerHTML = newTextArea.value;
+	newTextArea.setAttribute('id', "sourceexample"+(exampleCount));
+
+	document.getElementById("examples").appendChild(newExample);
+}
+
+template.setAttribute('style','display:none');
+
+// parse the examples
+
+var examples = document.getElementsByClassName("example");
+for (var exampleindex = 0; exampleindex < examples.length; exampleindex++) {
+	var exampleid = examples[exampleindex].getAttribute('id');
+	var source = document.getElementById("source"+exampleid);
+
+	var tds = examples[exampleindex].querySelectorAll("div.diagrams td");
+
+	for (var tdindex = 0; tdindex < tds.length; tdindex++) {
+	  var td = tds[tdindex];
+	  var theTheme = td.getAttribute('class');
+
+	  var diagramId = theTheme+exampleid
+	  td.setAttribute('id',diagramId);
+	  var diagram = Diagram.parse(source.value);
+
+	  document.getElementById(diagramId).innerHTML = "";
+	  diagram.drawSVG(diagramId,{theme: theTheme});
+	}
+}
+
+</script>
+
+</body>
+</html>

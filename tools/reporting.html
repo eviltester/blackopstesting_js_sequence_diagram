@@ -1,0 +1,110 @@
+<html>
+<head><title>Test Page for js-sequence-diagram</title>
+
+<!-- http://cdnjs.com/libraries/ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.4/raphael-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sequence-diagrams/1.0.6/sequence-diagram-min.js"></script>
+</head>
+<body>
+
+<div style="display:none">
+
+<!-- add your diagrams here by adding new 
+
+<textarea class="exampleSource">
+</textarea> 
+
+blocks with your diagram in it
+
+Build to support cross browser rendering testing
+-->
+
+<textarea class="exampleSource">
+Title: a title
+A->B:
+</textarea>
+
+<textarea class="exampleSource">
+Title: another title
+B-->C:
+</textarea>
+
+
+
+
+</div>
+
+<div id="template" class="template">
+	<hr/>
+	<div class="source">
+		<pre>
+		</pre>
+		<textarea style="display:none">
+
+		</textarea>
+	</div>
+	<div class="diagrams">
+		<table>
+			<tr>
+				<td id="" class="simple">Simple Diagram will be placed here</td>
+				<td id="" class="hand">Hand Diagram will be placed here</td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<div id="examples">
+</div>
+
+<script> 
+
+// create the examples
+var exampleCount = 0;
+
+var template = document.getElementById("template");
+
+var exampleSources = document.querySelectorAll("textarea.exampleSource");
+
+for (var sourceindex = 0; sourceindex < exampleSources.length; sourceindex++) {
+	var newExample = template.cloneNode(true);
+
+	newExample.setAttribute('id', "example"+(++exampleCount));
+	newExample.setAttribute('class', "example");
+	newTextArea = newExample.querySelectorAll("div.source textarea")[0];
+	newTextArea.value = exampleSources[sourceindex].value;
+	newPre = newExample.querySelectorAll("div.source pre")[0];
+	newPre.innerHTML = newTextArea.value;
+	newTextArea.setAttribute('id', "sourceexample"+(exampleCount));
+
+	document.getElementById("examples").appendChild(newExample);
+}
+
+template.setAttribute('style','display:none');
+
+// parse the examples
+
+var examples = document.getElementsByClassName("example");
+for (var exampleindex = 0; exampleindex < examples.length; exampleindex++) {
+	var exampleid = examples[exampleindex].getAttribute('id');
+	var source = document.getElementById("source"+exampleid);
+
+	var tds = examples[exampleindex].querySelectorAll("div.diagrams td");
+
+	for (var tdindex = 0; tdindex < tds.length; tdindex++) {
+	  var td = tds[tdindex];
+	  var theTheme = td.getAttribute('class');
+
+	  var diagramId = theTheme+exampleid
+	  td.setAttribute('id',diagramId);
+	  var diagram = Diagram.parse(source.value);
+
+	  document.getElementById(diagramId).innerHTML = "";
+	  diagram.drawSVG(diagramId,{theme: theTheme});
+	}
+}
+
+</script>
+
+</body>
+</html>
